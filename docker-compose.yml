@@ -1,0 +1,81 @@
+services:
+  dagster:
+    build: .
+    volumes:
+      - .:/app
+      - ./dagster_home:/app/dagster_home
+      - ./dbt:/app/dbt
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+      - DAGSTER_HOME=/app/dagster_home
+      - HOME=/app
+      - MOTHERDUCK_CONNECTION_STRING=${MOTHERDUCK_CONNECTION_STRING}
+      - MOTHERDUCK_TOKEN=${MOTHERDUCK_TOKEN}
+      - OMDB_API_KEY=${OMDB_API_KEY}
+      - DBT_PROFILES_DIR=/app/dbt
+    ports:
+      - "3000:3000"
+    command: >
+      bash -c "
+        cd /app &&
+        python -m dagster dev -f src/definitions.py -h 0.0.0.0 -p 3000
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    depends_on:
+      - dbt
+
+  dbt:
+    build: .
+    volumes:
+      - ./dbt:/app/dbt
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+      - HOME=/app
+      - MOTHERDUCK_CONNECTION_STRING=${MOTHERDUCK_CONNECTION_STRING}
+      - MOTHERDUCK_TOKEN=${MOTHERDUCK_TOKEN}
+      - OMDB_API_KEY=${OMDB_API_KEY}
+      - DBT_PROFILES_DIR=/app/dbt
+    command: >
+      bash -c "
+        cd /app/dbt &&
+        dbt deps &&
+        dbt compile
+      "
+    restart: unless-stopped
+
+  streamlit:
+    build: .
+    volumes:
+      - ./streamlit:/app/streamlit
+    env_file:
+      - .env
+    environment:
+      - PYTHONPATH=/app
+      - HOME=/app
+      - MOTHERDUCK_CONNECTION_STRING=${MOTHERDUCK_CONNECTION_STRING}
+      - MOTHERDUCK_TOKEN=${MOTHERDUCK_TOKEN}
+      - OMDB_API_KEY=${OMDB_API_KEY}
+    ports:
+      - "8501:8501"
+    command: python -m streamlit run streamlit/app.py
+    depends_on:
+      - dagster
+      - dbt
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  dagster_home:

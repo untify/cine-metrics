@@ -1,0 +1,55 @@
+name: 'cinemetrics'
+version: '1.0.0'
+config-version: 2
+
+profile: 'cinemetrics'
+
+model-paths: ["models"]
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+
+vars:
+  start_date: '2000-01-01'
+  end_date: '2030-12-31'
+  omdb_days_threshold: 7
+
+models:
+  cinemetrics:
+    staging:
+      +materialized: incremental
+      +tags: ["staging"]
+    marts:
+      +schema: marts
+      +materialized: table
+      +tags: ["mart"]
+      core:
+        +tags: ["core"]
+        dim_dates:
+          +materialized: table
+          +tags: ["dimension"]
+        dim_distributors:
+          +materialized: table
+          +tags: ["dimension"]
+        dim_movies:
+          +materialized: table
+          +tags: ["dimension"]
+        fct_daily_revenues:
+          +materialized: table
+          +tags: ["fact"]
+        fct_weekly_revenues:
+          +materialized: table
+          +tags: ["fact"]
+        int_weekly_revenues:
+          +materialized: ephemeral
+          +tags: ["intermediate"]
+
+on-run-start:
+  - "{{ log('Starting DBT run for Cinemetrics project', info=True) }}"
+
+on-run-end:
+  - "{{ log('Finished DBT run for Cinemetrics project', info=True) }}"

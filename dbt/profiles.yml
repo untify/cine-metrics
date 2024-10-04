@@ -1,0 +1,11 @@
+cinemetrics:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: md:my_db
+      motherduck_token: ${MOTHERDUCK_TOKEN}
+      extensions:
+        - httpfs
+        - motherduck
+      threads: 24

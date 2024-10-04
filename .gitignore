@@ -1,0 +1,121 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Dagster
+.logs_queue/
+.nux/
+compute_logs/
+storage/
+
+# DBT
+target/
+dbt_packages/
+logs/
+package-lock.yml
+.user.yml
+
+# MotherDuck
+.motherduck/
+
+# Streamlit
+.streamlit/
+
+# Docker
+.docker/
+
+# Data files
+*.csv
+*.tsv
+*.parquet
+*.xlsx
+*.xls
+*.db
+*.sqlite
+*.duckdb
+
+# Logs
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+
+# Sensitive or environment-specific files
+*.env
+*.pem
+*.key
+secrets.yaml
+
+# Build artifacts
+*.pyc
+*.pyo
+*.pyd
+
+# Test coverage
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Documentation
+docs/_build/
+site/
+
+# Miscellaneous
+*.class
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar

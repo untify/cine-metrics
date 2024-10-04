@@ -1,0 +1,296 @@
+version: 2
+
+models:
+  - name: dim_movies
+    description: "Dimension containing detailed information about movies"
+    columns:
+      - name: movie_key
+        description: "Unique key for the movie"
+        data_tests:
+          - unique
+          - not_null
+      - name: imdb_id
+        description: "Movie identifier in the IMDb database"
+        data_tests:
+          - unique
+          - not_null
+      - name: title
+        description: "Movie title"
+        data_tests:
+          - not_null
+      - name: clean_title
+        description: "Cleaned movie title"
+        data_tests:
+          - not_null
+      - name: year
+        description: "Release year of the movie"
+        data_tests:
+          - not_null
+      - name: rated
+        description: "Movie rating (e.g., PG, R)"
+      - name: released_date
+        description: "Released date of the movie"
+      - name: runtime_minutes
+        description: "Movie runtime in minutes"
+      - name: director
+        description: "Movie director(s)"
+      - name: actors
+        description: "Main actors in the movie"
+      - name: box_office_total
+        description: "Total box office revenue"
+      - name: imdb_rating
+        description: "IMDb rating of the movie"
+      - name: imdb_votes
+        description: "Number of votes for the IMDb rating"
+      - name: last_updated
+        description: "Timestamp of the last update in the source data"
+      - name: dbt_updated_at
+        description: "Timestamp of the last update in DBT"
+
+  - name: dim_distributors
+    description: "Dimension containing information about movie distributors"
+    columns:
+      - name: distributor_key
+        description: "Unique key for the distributor"
+        data_tests:
+          - unique
+          - not_null
+      - name: distributor
+        description: "Distributor name"
+        data_tests:
+          - unique
+          - not_null
+      - name: total_movies
+        description: "Total number of movies distributed"
+        data_tests:
+          - not_null
+      - name: first_appearance_date
+        description: "Date of first appearance in the dataset"
+      - name: last_appearance_date
+        description: "Date of last appearance in the dataset"
+      - name: total_revenue
+        description: "Total revenue from all movies"
+        data_tests:
+          - not_null
+      - name: avg_revenue_per_movie
+        description: "Average revenue per movie"
+      - name: distributor_category
+        description: "Category of distributor (Major, Medium, Minor)"
+      - name: dbt_updated_at
+        description: "Timestamp of the last update in DBT"
+
+  - name: dim_dates
+    description: "Dimension containing date information"
+    columns:
+      - name: date_key
+        description: "Unique key for the date"
+        data_tests:
+          - unique
+          - not_null
+      - name: date
+        description: "Date"
+        data_tests:
+          - unique
+          - not_null
+      - name: year
+        description: "Year"
+        data_tests:
+          - not_null
+      - name: month
+        description: "Month"
+        data_tests:
+          - not_null
+      - name: day
+        description: "Day of the month"
+        data_tests:
+          - not_null
+      - name: iso_day_of_week
+        description: "ISO day of the week (1-7, Monday is 1)"
+        data_tests:
+          - not_null
+      - name: quarter
+        description: "Quarter of the year"
+        data_tests:
+          - not_null
+      - name: day_of_year
+        description: "Day of the year"
+        data_tests:
+          - not_null
+      - name: week_of_year
+        description: "Week of the year"
+        data_tests:
+          - not_null
+      - name: week_of_year_iso
+        description: "ISO week of the year"
+        data_tests:
+          - not_null
+      - name: is_weekend
+        description: "Boolean indicating if the date is a weekend"
+        data_tests:
+          - not_null
+      - name: month_name
+        description: "Name of the month"
+        data_tests:
+          - not_null
+      - name: day_name
+        description: "Name of the day"
+        data_tests:
+          - not_null
+      - name: fiscal_year
+        description: "Fiscal year"
+        data_tests:
+          - not_null
+      - name: fiscal_quarter
+        description: "Fiscal quarter"
+        data_tests:
+          - not_null
+      - name: dbt_updated_at
+        description: "Timestamp of the last update in DBT"
+
+  - name: fct_daily_revenues
+    description: "Facts of daily movie revenues"
+    columns:
+      - name: revenue_key
+        description: "Unique key for the revenue record"
+        data_tests:
+          - unique
+          - not_null
+      - name: date_key
+        description: "Foreign key to the dates dimension"
+        data_tests:
+          - relationships:
+              to: ref('dim_dates')
+              field: date_key
+      - name: movie_key
+        description: "Foreign key to the movies dimension"
+        data_tests:
+          - relationships:
+              to: ref('dim_movies')
+              field: movie_key
+      - name: distributor_key
+        description: "Foreign key to the distributors dimension"
+        data_tests:
+          - relationships:
+              to: ref('dim_distributors')
+              field: distributor_key
+      - name: revenue
+        description: "Daily revenue of the movie"
+        data_tests:
+          - not_null
+          - positive_value
+      - name: theaters
+        description: "Number of theaters showing the movie"
+        data_tests:
+          - not_null
+          - positive_value
+      - name: revenue_date
+        description: "Date of the revenue"
+        data_tests:
+          - not_null
+      - name: revenue_per_theater
+        description: "Average revenue per theater"
+      - name: day_over_day_change
+        description: "Percentage change in revenue from previous day"
+      - name: drop_percentage
+        description: "Percentage drop in revenue to the next day"
+      - name: day_number
+        description: "Day number since movie release"
+        data_tests:
+          - not_null
+      - name: days_since_release
+        description: "Number of days since movie release"
+        data_tests:
+          - not_null
+      - name: dbt_updated_at
+        description: "Timestamp of the last update in DBT"
+
+  - name: fct_weekly_revenues
+    description: "Facts of weekly movie revenues"
+    columns:
+      - name: weekly_revenue_key
+        description: "Unique key for the weekly revenue record"
+        data_tests:
+          - unique
+          - not_null
+      - name: movie_key
+        description: "Foreign key to the movies dimension"
+        data_tests:
+          - relationships:
+              to: ref('dim_movies')
+              field: movie_key
+      - name: year
+        description: "Year of the week"
+        data_tests:
+          - not_null
+      - name: week_of_year_iso
+        description: "ISO week of the year"
+        data_tests:
+          - not_null
+      - name: week_number_since_release
+        description: "Week number since movie release"
+        data_tests:
+          - not_null
+      - name: weekly_revenue
+        description: "Weekly revenue of the movie"
+        data_tests:
+          - not_null
+          - positive_value
+      - name: weekly_theaters
+        description: "Average number of theaters for the week"
+        data_tests:
+          - not_null
+      - name: previous_week_revenue
+        description: "Revenue from the previous week"
+      - name: revenue_change
+        description: "Change in revenue from previous week"
+      - name: revenue_change_percentage
+        description: "Percentage change in revenue from previous week"
+      - name: theater_change_percentage
+        description: "Percentage change in theater count from previous week"
+      - name: revenue_per_theater
+        description: "Average revenue per theater for the week"
+      - name: drop_percentage
+        description: "Percentage drop in revenue to the next week"
+      - name: days_in_week
+        description: "Number of days with revenue in the week"
+        data_tests:
+          - not_null
+      - name: days_in_theaters
+        description: "Number of days in theaters for the week"
+        data_tests:
+          - not_null
+      - name: week_start_date
+        description: "Start date of the week"
+        data_tests:
+          - not_null
+      - name: week_end_date
+        description: "End date of the week"
+        data_tests:
+          - not_null
+      - name: first_revenue_date
+        description: "First date with revenue in the week"
+      - name: last_revenue_date
+        description: "Last date with revenue in the week"
+      - name: released_date
+        description: "Released date of the movie"
+        data_tests:
+          - not_null
+      - name: run_stage
+        description: "Stage of the movie's run (e.g., Opening Week, Early Weeks)"
+      - name: performance_category
+        description: "Performance category based on revenue change"
+      - name: dbt_updated_at
+        description: "Timestamp of the last update in DBT"
+      - name: fct_weekly_revenues
+        description: "Cumulative revenue of the movie up to the current week"
+        data_tests:
+          - not_null
+          - positive_value
+
+tests:
+  - name: positive_value
+    description: "Checks if the value is greater than zero"
+    test_metadata:
+      name: accepted_values
+      config:
+        values: ['> 0']

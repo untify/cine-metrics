@@ -1,0 +1,102 @@
+version: 2
+
+sources:
+  - name: raw
+    database: my_db
+    schema: main
+    loader: motherduck
+    description: "Raw data loaded from CSV and API"
+    tables:
+      - name: raw_revenues_per_day
+        description: "Raw daily revenue data for movies"
+        columns:
+          - name: id
+            description: "Unique identifier for each record"
+          - name: date
+            description: "Date of the revenue record"
+          - name: title
+            description: "Movie title"
+          - name: revenue
+            description: "Daily revenue amount"
+          - name: theaters
+            description: "Number of theaters showing the movie"
+          - name: distributor
+            description: "Movie distributor"
+          - name: ingestion_timestamp
+            description: "Timestamp of data ingestion"
+        loaded_at_field: ingestion_timestamp
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+      - name: raw_ingestion_log
+        description: "Log of raw data ingestion"
+        columns:
+          - name: source_table
+            description: "Name of the source table"
+          - name: last_ingested_date
+            description: "Timestamp of last ingestion"
+          - name: record_count
+            description: "Number of records ingested"
+
+  - name: staging
+    database: my_db
+    schema: main
+    loader: motherduck
+    description: "Staged data for analysis"
+    tables:
+      - name: stg_movies_to_fetch
+        description: "List of movies to fetch from OMDB API"
+        columns:
+          - name: clean_title
+            description: "Cleaned movie title"
+          - name: max_date
+            description: "Latest date for the movie in revenue data"
+          - name: omdb_last_fetched_date
+            description: "Date when movie data was last fetched from OMDB"
+          - name: omdb_last_error_date
+            description: "Date of the last error when fetching movie data"
+
+      - name: stg_revenue_per_day
+        description: "Staged daily revenue data for movies"
+        columns:
+          - name: id
+            description: "Unique identifier for each record"
+          - name: date
+            description: "Date of the revenue record"
+          - name: title
+            description: "Movie title"
+          - name: clean_title
+            description: "Cleaned movie title"
+          - name: revenue
+            description: "Daily revenue amount"
+          - name: theaters
+            description: "Number of theaters showing the movie"
+          - name: distributor
+            description: "Movie distributor"
+          - name: ingestion_timestamp
+            description: "Timestamp of data ingestion"
+          - name: etl_updated_at
+            description: "Timestamp of last ETL update"
+        loaded_at_field: etl_updated_at
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+      - name: stg_omdb_raw_data
+        description: "Raw movie data from OMDB API created by Dagster asset"
+        columns:
+          - name: imdb_id
+            description: "IMDB identifier for the movie"
+          - name: data
+            description: "JSON data containing movie details"
+          - name: last_updated
+            description: "Timestamp of last update"
+
+      - name: stg_omdb_api_usage_log
+        description: "Log of OMDB API usage"
+        columns:
+          - name: date
+            description: "Date of API usage"
+          - name: request_count
+            description: "Number of API requests made on this date"
